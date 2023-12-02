@@ -1,20 +1,20 @@
-// Masih butuh buat nyederhanain, 8x8 masih lama
-
 #include <iostream>
 #include <vector>
-#include <unistd.h>
 #include <algorithm>
+
 using namespace std;
+
 class knightTour
 {
 private:
-    const int row = 7;
-    const int col = 7;
+    const int row = 8;
+    const int col = 8;
     int moves[8][2] = {{-2, -1}, {-2, 1}, {2, -1}, {2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}};
-    std::vector<std::vector<int>> inDegree, board;
+    vector<vector<int>> board;
 
 public:
-    knightTour() : board(row, std::vector<int>(col, 0)), inDegree(row, std::vector<int>(col, 0)) {}
+    knightTour() : board(row, vector<int>(col, 0)) {}
+
     void printBoard()
     {
         cout << "========RESULT========" << endl;
@@ -30,28 +30,22 @@ public:
         }
         cout << "=====================" << endl;
     }
-    vector<vector<int>> minAndFindPossibleState(int i, int j)
+
+    int countAccessibleMoves(int i, int j)
     {
-        vector<vector<int>> sortedState;
-        vector<pair<pair<int, int>, int>> state;
+        int count = 0;
         for (int k = 0; k < 8; ++k)
         {
             int ni = i + moves[k][0];
             int nj = j + moves[k][1];
             if (ni >= 0 && ni < row && nj >= 0 && nj < col && board[ni][nj] == 0)
             {
-                state.push_back(make_pair(make_pair(ni, nj), inDegree[ni][nj]));
+                count++;
             }
         }
-        sort(state.begin(), state.end(), [](const auto &a, const auto &b)
-             { return a.second < b.second; });
-
-        for (const auto &s : state)
-        {
-            sortedState.push_back({s.first.first, s.first.second, s.second});
-        }
-        return sortedState;
+        return count;
     }
+
     void searchEveryPossibleState(int i, int j, int totalMove)
     {
         if (totalMove == col * row)
@@ -60,16 +54,32 @@ public:
             cin.get();
             return;
         }
-        for (auto &s : minAndFindPossibleState(i, j))
+
+        vector<pair<pair<int, int>, int>> state;
+        for (int k = 0; k < 8; ++k)
         {
-            int ni = s[0];
-            int nj = s[1];
-            inDegree[ni][nj] = +1;
+            int ni = i + moves[k][0];
+            int nj = j + moves[k][1];
+            if (ni >= 0 && ni < row && nj >= 0 && nj < col && board[ni][nj] == 0)
+            {
+                int accessMoves = countAccessibleMoves(ni, nj);
+                state.push_back(make_pair(make_pair(ni, nj), accessMoves));
+            }
+        }
+
+        sort(state.begin(), state.end(), [](const auto &a, const auto &b)
+             { return a.second < b.second; });
+
+        for (auto &s : state)
+        {
+            int ni = s.first.first;
+            int nj = s.first.second;
             board[ni][nj] = totalMove + 1;
             searchEveryPossibleState(ni, nj, totalMove + 1);
             board[ni][nj] = 0;
         }
     }
+
     void runEveryPossibleState()
     {
         for (int i = 0; i < row; i++)
@@ -83,6 +93,7 @@ public:
         }
     }
 };
+
 int main()
 {
     knightTour KT;
