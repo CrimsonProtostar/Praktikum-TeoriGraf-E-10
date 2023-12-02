@@ -1,8 +1,9 @@
->> Buat 5x5, 6x6, 7x7 output keluar. Tapi, 8x8 output keluarnya lama banget. Mungkin bisa diubah buat backtrackingnya, aku buntu :[
+// Masih butuh buat nyederhanain, 8x8 masih lama
 
 #include <iostream>
 #include <vector>
 #include <unistd.h>
+#include <algorithm>
 using namespace std;
 class knightTour
 {
@@ -10,13 +11,13 @@ private:
     const int row = 7;
     const int col = 7;
     int moves[8][2] = {{-2, -1}, {-2, 1}, {2, -1}, {2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}};
-    std::vector<std::vector<int>> board;
+    std::vector<std::vector<int>> inDegree, board;
 
 public:
-    knightTour() : board(row, std::vector<int>(col, 0)) {}
+    knightTour() : board(row, std::vector<int>(col, 0)), inDegree(row, std::vector<int>(col, 0)) {}
     void printBoard()
     {
-        cout<<"========RESULT========"<<endl;
+        cout << "========RESULT========" << endl;
         for (int i = 0; i < row; i++)
         {
             for (int j = 0; j < col; j++)
@@ -25,31 +26,48 @@ public:
                     std::cout << ' ';
                 std::cout << board[i][j] << ' ';
             }
-            cout<<endl;
+            cout << endl;
         }
-        cout<<"=====================";
+        cout << "=====================" << endl;
     }
-    void searchEveryPossibleState(int i, int j, int totalMove)
+    vector<vector<int>> minAndFindPossibleState(int i, int j)
     {
-        // std::cout << "\033[H\033[J"; <<
-        // printBoard();
-        //usleep(10);/* JEDA 500.000 = 0.5s*/
-        if (totalMove == col * row)
-        {
-            printBoard();
-            cin.get();
-            return;
-        }       
+        vector<vector<int>> sortedState;
+        vector<pair<pair<int, int>, int>> state;
         for (int k = 0; k < 8; ++k)
         {
             int ni = i + moves[k][0];
             int nj = j + moves[k][1];
             if (ni >= 0 && ni < row && nj >= 0 && nj < col && board[ni][nj] == 0)
             {
-                board[ni][nj] = totalMove + 1;
-                searchEveryPossibleState(ni, nj, totalMove + 1);
-                board[ni][nj] = 0;
+                state.push_back(make_pair(make_pair(ni, nj), inDegree[ni][nj]));
             }
+        }
+        sort(state.begin(), state.end(), [](const auto &a, const auto &b)
+             { return a.second < b.second; });
+
+        for (const auto &s : state)
+        {
+            sortedState.push_back({s.first.first, s.first.second, s.second});
+        }
+        return sortedState;
+    }
+    void searchEveryPossibleState(int i, int j, int totalMove)
+    {
+        if (totalMove == col * row)
+        {
+            printBoard();
+            cin.get();
+            return;
+        }
+        for (auto &s : minAndFindPossibleState(i, j))
+        {
+            int ni = s[0];
+            int nj = s[1];
+            inDegree[ni][nj] = +1;
+            board[ni][nj] = totalMove + 1;
+            searchEveryPossibleState(ni, nj, totalMove + 1);
+            board[ni][nj] = 0;
         }
     }
     void runEveryPossibleState()
