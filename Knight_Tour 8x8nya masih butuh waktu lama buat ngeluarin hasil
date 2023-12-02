@@ -1,0 +1,72 @@
+>> Buat 5x5, 6x6, 7x7 output keluar. Tapi, 8x8 output keluarnya lama banget. Mungkin bisa diubah buat backtrackingnya, aku buntu :[
+
+#include <iostream>
+#include <vector>
+#include <unistd.h>
+using namespace std;
+class knightTour
+{
+private:
+    const int row = 7;
+    const int col = 7;
+    int moves[8][2] = {{-2, -1}, {-2, 1}, {2, -1}, {2, 1}, {-1, -2}, {-1, 2}, {1, -2}, {1, 2}};
+    std::vector<std::vector<int>> board;
+
+public:
+    knightTour() : board(row, std::vector<int>(col, 0)) {}
+    void printBoard()
+    {
+        cout<<"========RESULT========"<<endl;
+        for (int i = 0; i < row; i++)
+        {
+            for (int j = 0; j < col; j++)
+            {
+                if (board[i][j] < 10)
+                    std::cout << ' ';
+                std::cout << board[i][j] << ' ';
+            }
+            cout<<endl;
+        }
+        cout<<"=====================";
+    }
+    void searchEveryPossibleState(int i, int j, int totalMove)
+    {
+        // std::cout << "\033[H\033[J"; <<
+        // printBoard();
+        //usleep(10);/* JEDA 500.000 = 0.5s*/
+        if (totalMove == col * row)
+        {
+            printBoard();
+            cin.get();
+            return;
+        }       
+        for (int k = 0; k < 8; ++k)
+        {
+            int ni = i + moves[k][0];
+            int nj = j + moves[k][1];
+            if (ni >= 0 && ni < row && nj >= 0 && nj < col && board[ni][nj] == 0)
+            {
+                board[ni][nj] = totalMove + 1;
+                searchEveryPossibleState(ni, nj, totalMove + 1);
+                board[ni][nj] = 0;
+            }
+        }
+    }
+    void runEveryPossibleState()
+    {
+        for (int i = 0; i < row; i++)
+        {
+            for (int j = 0; j < col; j++)
+            {
+                board[i][j] = 1;
+                searchEveryPossibleState(i, j, 1);
+                board[i][j] = 0;
+            }
+        }
+    }
+};
+int main()
+{
+    knightTour KT;
+    KT.runEveryPossibleState();
+}
