@@ -54,7 +54,7 @@ public:
         return count;
     }
 
-    void searchEveryPossibleState(int i, int j, int totalMove)
+    int searchEveryPossibleState(int i, int j, int totalMove)
     {
         if (totalMove == col * row)
         {
@@ -65,7 +65,7 @@ public:
             }
             printBoard();
             cin.get();
-            return;
+            return 1;
         }
 
         vector<pair<pair<int, int>, int>> state;
@@ -85,20 +85,24 @@ public:
 
         for (auto &s : state)
         {
-            
+            // printf("MOVES : %d\n", totalMove);
             int ni = s.first.first;
             int nj = s.first.second;
             board[ni][nj] = totalMove + 1;
-            searchEveryPossibleState(ni, nj, totalMove + 1);
+            int isSolutionFound = searchEveryPossibleState(ni, nj, totalMove + 1);
 
             board[ni][nj] = 0;
+            if (isSolutionFound) 
+            {
+                return 1;
 
+            }
             // Allows retry different move without causing infinite loops
             if (state.size() <= 1){
-                return;
+                return 0;
             }
         }
-        
+        return 0;
     }
 
     void runEveryPossibleState()
@@ -109,7 +113,7 @@ public:
             {
                 printf("%d %d\n", i, j);
                 board[i][j] = 1;
-                searchEveryPossibleState(i, j, 1);
+                printf("RETURN : %d\n", searchEveryPossibleState(i, j, 1));
                 board[i][j] = 0;
             }
         }
