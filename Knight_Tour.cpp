@@ -76,8 +76,11 @@ public:
             int nj = s.first.second;
             board[ni][nj] = totalMove + 1;
             searchEveryPossibleState(ni, nj, totalMove + 1);
+
             board[ni][nj] = 0;
+            return;
         }
+        
     }
 
     void runEveryPossibleState()
@@ -86,6 +89,7 @@ public:
         {
             for (int j = 0; j < col; j++)
             {
+                printf("%d %d\n", i, j);
                 board[i][j] = 1;
                 searchEveryPossibleState(i, j, 1);
                 board[i][j] = 0;
@@ -98,4 +102,5 @@ int main()
 {
     knightTour KT;
     KT.runEveryPossibleState();
+    return 0;
 }
