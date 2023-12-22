@@ -31,17 +31,25 @@ public:
         cout << "=====================" << endl;
     }
 
-    int countAccessibleMoves(int i, int j)
+    int countAccessibleMoves(int i, int j, int totalMove)
     {
         int count = 0;
         for (int k = 0; k < 8; ++k)
         {
             int ni = i + moves[k][0];
             int nj = j + moves[k][1];
-            if (ni >= 0 && ni < row && nj >= 0 && nj < col && board[ni][nj] == 0)
+            if (ni >= 0 && ni < row && nj >= 0 && nj < col)
             {
-                count++;
+                if (board[ni][nj] == 0){
+                    count++;
+                }
+                // Checks if 64 can move back to 1
+                else if (totalMove == 64 && board[ni][nj] == 1){
+                    return -1;
+                }
+                
             }
+
         }
         return count;
     }
@@ -50,6 +58,11 @@ public:
     {
         if (totalMove == col * row)
         {
+            int isClosed = countAccessibleMoves(i, j, totalMove);
+            if (isClosed == -1)
+            {
+                printf ("++++ NEXT BOARD IS A CLOSED LOOP ++++\n");
+            }
             printBoard();
             cin.get();
             return;
@@ -62,7 +75,7 @@ public:
             int nj = j + moves[k][1];
             if (ni >= 0 && ni < row && nj >= 0 && nj < col && board[ni][nj] == 0)
             {
-                int accessMoves = countAccessibleMoves(ni, nj);
+                int accessMoves = countAccessibleMoves(ni, nj, totalMove);
                 state.push_back(make_pair(make_pair(ni, nj), accessMoves));
             }
         }
@@ -72,13 +85,18 @@ public:
 
         for (auto &s : state)
         {
+            
             int ni = s.first.first;
             int nj = s.first.second;
             board[ni][nj] = totalMove + 1;
             searchEveryPossibleState(ni, nj, totalMove + 1);
 
             board[ni][nj] = 0;
-            return;
+
+            // Allows retry different move without causing infinite loops
+            if (state.size() <= 1){
+                return;
+            }
         }
         
     }
